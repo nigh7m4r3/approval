@@ -4,12 +4,13 @@ module Approval
       include ::ActiveModel::Model
       include ::Approval::FormNotifiable
 
-      attr_accessor :user, :reason, :records
+      attr_accessor :user, :reason, :records, :callback_method
 
-      def initialize(user:, reason:, records:)
+      def initialize(user:, reason:, records:, callback_method: nil)
         @user    = user
         @reason  = reason
         @records = records
+        @callback_method = callback_method
       end
 
       validates :user,    presence: true

@@ -11,7 +11,9 @@ module Approval
                 request.items.new(
                   event: "perform",
                   resource_type: record.class.to_s,
+                  resource_id: record.id,
                   params: extract_params_from(record),
+                  callback_method: @callback_method
                 )
               end
               yield(request)

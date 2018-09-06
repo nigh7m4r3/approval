@@ -48,12 +48,26 @@ module Approval
       end
 
       def exec_perform
-        raise NotImplementedError unless resource_model.respond_to?(:perform)
+        callback_method = self.callback_method
 
-        if resource_model.method(:perform).arity > 0
-          resource_model.perform(params)
+        raise NotImplementedError unless callback_method.present?
+
+        unless resource_model.respond_to?(callback_method)
+          @resource_model = resource_model.find_by(id: resource_id)
+          unless @resource_model.respond_to?(callback_method)
+            raise NotImplementedError
+          end
+        end
+        # raise NotImplementedError unless resource_model.respond_to?(:perform)
+
+        arg_count = resource_model.method(callback_method.to_sym).arity
+        if arg_count != 0
+          # resource_model.perform(params)
+          byebug
+          resource_model.public_send(callback_method, params)
         else
-          resource_model.perform
+          # resource_model.perform
+          resource_model.public_send(callback_method)
         end
       end
 
