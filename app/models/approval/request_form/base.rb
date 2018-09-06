@@ -6,11 +6,12 @@ module Approval
 
       attr_accessor :user, :reason, :records, :callback_method
 
-      def initialize(user:, reason:, records:, callback_method: nil)
+      def initialize(user:, reason:, records:, callback_method: nil, options: {})
         @user    = user
         @reason  = reason
         @records = records
         @callback_method = callback_method
+        @options = options
       end
 
       validates :user,    presence: true

@@ -9,6 +9,7 @@ module Approval
     belongs_to :resource, polymorphic: true, optional: true
 
     serialize :params, Hash
+    serialize :options, Hash
 
     validates :resource_type, presence: true
     validates :resource_id,   presence: true, if: ->(item) { item.update_event? || item.destroy_event? }
@@ -63,7 +64,6 @@ module Approval
         arg_count = resource_model.method(callback_method.to_sym).arity
         if arg_count != 0
           # resource_model.perform(params)
-          byebug
           resource_model.public_send(callback_method, params)
         else
           # resource_model.perform

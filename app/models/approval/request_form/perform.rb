@@ -12,8 +12,9 @@ module Approval
                   event: "perform",
                   resource_type: record.class.to_s,
                   resource_id: record.id,
-                  params: extract_params_from(record),
-                  callback_method: @callback_method
+                  params: extract_params_from(record).merge!(@options),
+                  callback_method: @callback_method,
+                  options: @options
                 )
               end
               yield(request)
