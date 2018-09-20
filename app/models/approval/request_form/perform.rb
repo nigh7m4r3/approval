@@ -12,7 +12,7 @@ module Approval
                   event: "perform",
                   resource_type: record.class.to_s,
                   resource_id: record.id,
-                  params: extract_params_from(record).merge!(@options),
+                  params: extract_params_from(record),
                   callback_method: @callback_method,
                   options: @options
                 )
@@ -23,7 +23,7 @@ module Approval
         end
 
         def extract_params_from(record)
-          record.try(:attributes) || record.try(:to_h) || {}
+          record.changes || {}
         end
     end
   end

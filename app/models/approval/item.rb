@@ -54,25 +54,36 @@ module Approval
         raise NotImplementedError unless callback_method.present?
 
         unless resource_model.respond_to?(callback_method)
-          @resource_model = resource_model.find_by(id: resource_id)
-          unless @resource_model.respond_to?(callback_method)
-            raise NotImplementedError
-          end
+          raise NotImplementedError
         end
         # raise NotImplementedError unless resource_model.respond_to?(:perform)
 
         arg_count = resource_model.method(callback_method.to_sym).arity
         if arg_count != 0
           # resource_model.perform(params)
-          resource_model.public_send(callback_method, params)
+          result = resource_model.public_send(callback_method, options)
         else
           # resource_model.perform
-          resource_model.public_send(callback_method)
+          result = resource_model.public_send(callback_method)
         end
+
+        !result.errors.present?
       end
 
       def resource_model
-        @resource_model ||= resource_type.to_s.safe_constantize
+        return @resource_model if @resource_model.present?
+
+        if resource_id.present?
+          @resource_model = resource_type.to_s.safe_constantize.find(resource_id)
+        else
+          @resource_model = resource_type.to_s.safe_constantize.new
+        end
+
+        changes = {}
+        params.map{|k, v| changes[k] = v.last}
+        @resource_model.assign_attributes(changes)
+
+        @resource_model
       end
 
       def ensure_resource_be_valid
