@@ -13,6 +13,7 @@ module Approval
                   resource_type: record.class.to_s,
                   resource_id: record.id,
                   params: extract_params_from(record),
+                  request_type: @request_type,
                   callback_method: @callback_method,
                   options: @options
                 )

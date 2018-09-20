@@ -99,7 +99,7 @@ request.save!
 staff = User.find_or_create_by(email: "staff@example.com")
 
 record  = MyProcess.new(recipient: "somebody@example.com")
-request = staff.request_for_perform(record, reason: "something", callback_method: 'unpublish!', options: { option_1: 'value_1', option_2: 'value_2' })
+request = staff.request_for_perform(record, reason: "something", request_type: "Unpublish Book", callback_method: 'unpublish!', options: { option_1: 'value_1', option_2: 'value_2' })
 request.save
 ```
 
