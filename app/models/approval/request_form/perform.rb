@@ -4,6 +4,7 @@ module Approval
       private
 
         def prepare
+          request.request_type = @request_type
           instrument "request" do |payload|
             ::Approval::Request.transaction do
               payload[:comment] = request.comments.new(user_id: user.id, content: reason)
@@ -13,7 +14,6 @@ module Approval
                   resource_type: record.class.to_s,
                   resource_id: record.id,
                   params: extract_params_from(record),
-                  request_type: @request_type,
                   callback_method: @callback_method,
                   options: @options
                 )

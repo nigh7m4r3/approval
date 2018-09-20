@@ -19,8 +19,8 @@ module Approval
       Approval::RequestForm::Destroy.new(user: self, reason: reason, records: records)
     end
 
-    def request_for_perform(records, reason:, callback_method:, options: {})
-      Approval::RequestForm::Perform.new(user: self, reason: reason, records: records, callback_method: callback_method, options: options)
+    def request_for_perform(records, reason:, request_type:, callback_method:, options: {})
+      Approval::RequestForm::Perform.new(user: self, reason: reason, records: records, request_type: request_type, callback_method: callback_method, options: options)
     end
 
     def cancel_request(request, reason:)

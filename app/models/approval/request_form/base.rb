@@ -6,7 +6,7 @@ module Approval
 
       attr_accessor :user, :reason, :records, :callback_method
 
-      def initialize(user:, reason:, records:, request_type:, callback_method: nil, options: {})
+      def initialize(user:, reason:, records:, request_type: nil, callback_method: nil, options: {})
         @user    = user
         @reason  = reason
         @records = records

@@ -31,6 +31,7 @@ module Approval
     def execute
       self.state = :executed
       self.executed_at = Time.current
+      self.request_type = @request_type
       items.each(&:apply)
     end
 
