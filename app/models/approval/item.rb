@@ -66,8 +66,6 @@ module Approval
           # resource_model.perform
           result = resource_model.public_send(callback_method)
         end
-
-        !result.errors.present?
       end
 
       def resource_model
