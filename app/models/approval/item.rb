@@ -24,8 +24,26 @@ module Approval
       end
     end
 
+    def as_json(options = {})
+      h = super(options)
+      if user
+        h[:user] = user
+        h[:user_information] = user.user_information
+      end
+
+      h
+    end
+
     def apply
       send("exec_#{event}")
+    end
+
+    def user
+      if resource_type == 'User' && resource_id.present?
+        return User.includes(:user_information).find_by(id: resource_id)
+      else
+        return User.none
+      end
     end
 
     private

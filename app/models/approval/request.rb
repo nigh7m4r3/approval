@@ -28,6 +28,15 @@ module Approval
       self.requested_at = Time.current
     end
 
+    def as_json(options = {})
+      h = super(options)
+      if items
+        h[:items] = items.as_json
+      end
+
+      h
+    end
+
     def execute
       self.state = :executed
       self.executed_at = Time.current
