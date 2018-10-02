@@ -39,6 +39,9 @@ module Approval
       if items
         h[:items] = items.as_json
       end
+      if comments
+        h[:comments] = comments
+      end
 
       h
     end
