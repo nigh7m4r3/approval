@@ -30,6 +30,12 @@ module Approval
 
     def as_json(options = {})
       h = super(options)
+      if respond_user
+        h[:respond_user] = respond_user.as_json(include: [:user_information])
+      end
+      if request_user
+        h[:request_user] = request_user.as_json(include: [:user_information])
+      end
       if items
         h[:items] = items.as_json
       end
@@ -40,7 +46,7 @@ module Approval
     def execute
       self.state = :executed
       self.executed_at = Time.current
-      self.request_type = @request_type
+      self.request_type = @request_type if @request_type.present?
       items.each(&:apply)
     end
 

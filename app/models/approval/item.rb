@@ -27,8 +27,7 @@ module Approval
     def as_json(options = {})
       h = super(options)
       if user
-        h[:user] = user
-        h[:user_information] = user.user_information
+        h[:user] = user.as_json(include: [:user_information])
       end
 
       h
