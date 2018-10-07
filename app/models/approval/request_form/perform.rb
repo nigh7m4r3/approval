@@ -15,7 +15,8 @@ module Approval
                   resource_id: record.id,
                   params: extract_params_from(record),
                   callback_method: @callback_method,
-                  options: @options
+                  options: @options,
+                  full_changes: @full_changes
                 )
               end
               yield(request)
