@@ -37,8 +37,23 @@ module Approval
         h[:request_user] = request_user.as_json(include: [:user_information])
       end
       if items
-        h[:items] = items.as_json
+        h[:items] = items.as_json(include: [:user, :user_information])
       end
+
+      h
+    end
+
+    def as_json_for_checker(options={})
+      h = as_json(options)
+
+      if items
+        h[:items] = items.map(&:as_json_for_checker)
+      end
+
+      if comments
+        h[:comments] = comments
+      end
+
       if comments
         h[:comments] = comments
       end

@@ -24,10 +24,17 @@ module Approval
       end
     end
 
-    def as_json(options = {})
+    def as_json(options={})
       h = super(options)
-      if user
-        h[:user] = user.as_json(include: [:user_information])
+
+      h
+    end
+
+    def as_json_for_checker(options={})
+      h = as_json(options)
+
+      if resource && resource.respond_to?(:as_json_for_checker)
+        h[self.resource_type.downcase.to_sym] = resource.as_json_for_checker
       end
 
       h
@@ -42,6 +49,14 @@ module Approval
         return User.includes(:user_information).find_by(id: resource_id)
       else
         return User.none
+      end
+    end
+
+    def user_information
+      if user
+        user.user_information
+      else
+        UserInformation.none
       end
     end
 
