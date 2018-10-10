@@ -5,6 +5,9 @@ module Approval
 
         def prepare
           request.request_type = @request_type
+          if @full_params[:previous_request_id].present?
+            request.previous_request_id = @full_params[:previous_request_id].to_i
+          end
           instrument "request" do |payload|
             ::Approval::Request.transaction do
               payload[:comment] = request.comments.new(user_id: user.id, content: reason)
@@ -16,7 +19,7 @@ module Approval
                   params: extract_params_from(record),
                   callback_method: @callback_method,
                   options: @options,
-                  full_changes: @full_changes
+                  full_params: @full_params
                 )
               end
               yield(request)
