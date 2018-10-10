@@ -7,6 +7,9 @@ module Approval
       belongs_to :respond_user, class_name: Approval.config.user_class_name, optional: true
     end
 
+    belongs_to :parent_request, class_name: 'Approval::Request'
+    has_many :child_requests, class_name: 'Approval::Request', foreign_key: :parent_request_id
+
     has_many :comments, class_name: :"Approval::Comment", inverse_of: :request, dependent: :destroy
     has_many :items,    class_name: :"Approval::Item",    inverse_of: :request, dependent: :destroy
 
@@ -50,15 +53,17 @@ module Approval
         h[:items] = items.map(&:as_json_for_checker)
       end
 
-      if comments
-        h[:comments] = comments
-      end
-
-      if comments
-        h[:comments] = comments
-      end
-
       h
+    end
+
+    def all_related_comments
+      if self.parent_request_id.present?
+        parent = parent_request
+        children = parent.child_requests
+        Approval::Comment.where(request_id: [self.id, parent.id, children.map(&:id)].flatten)
+      else
+        comments
+      end
     end
 
     def execute

@@ -5,8 +5,8 @@ module Approval
 
         def prepare
           request.request_type = @request_type
-          if @full_params[:previous_request_id].present?
-            request.previous_request_id = @full_params[:previous_request_id].to_i
+          if @full_params[:parent_request_id].present?
+            request.parent_request_id = @full_params[:parent_request_id].to_i
           end
           instrument "request" do |payload|
             ::Approval::Request.transaction do
