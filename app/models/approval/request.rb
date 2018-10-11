@@ -14,6 +14,7 @@ module Approval
     has_many :items,    class_name: :"Approval::Item",    inverse_of: :request, dependent: :destroy
 
     enum state: { pending: 0, cancelled: 1, approved: 2, rejected: 3, executed: 4 }
+    enum display_status: { displayed: 1, hidden: 2 }
 
     scope :recently, -> { order(id: :desc) }
 
@@ -30,6 +31,8 @@ module Approval
     before_create do
       self.requested_at = Time.current
     end
+
+    after_create :hide_related_rejected_requests
 
     def as_json(options = {})
       h = super(options)
@@ -71,6 +74,17 @@ module Approval
       self.executed_at = Time.current
       self.request_type = @request_type if @request_type.present?
       items.each(&:apply)
+    end
+
+    def hide_related_rejected_requests
+      if self.parent_request_id.present?
+        parent = self.parent_request
+        children = parent.child_requests.where.not(id: self.id)
+        Approval::Request
+            .where(id: [parent.id, children.map(&:id)].flatten!)
+            .displayed
+            .update_all(display_status: Approval::Request::display_statuses[:hidden])
+      end
     end
 
     private
