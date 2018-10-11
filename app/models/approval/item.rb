@@ -47,16 +47,12 @@ module Approval
     def user
       if resource_type == 'User' && resource_id.present?
         return User.includes(:user_information).find_by(id: resource_id)
-      else
-        return User.none
       end
     end
 
     def user_information
       if user
         user.user_information
-      else
-        UserInformation.none
       end
     end
 
