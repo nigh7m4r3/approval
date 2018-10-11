@@ -2,6 +2,8 @@ module Approval
   class Item < ApplicationRecord
     class UnexistResource < StandardError; end
 
+    has_paper_trail
+
     self.table_name = :approval_items
     EVENTS = %w[create update destroy perform].freeze
 

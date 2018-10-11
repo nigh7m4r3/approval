@@ -1,5 +1,7 @@
 module Approval
   class Request < ApplicationRecord
+    has_paper_trail
+
     self.table_name = :approval_requests
 
     def self.define_user_association
