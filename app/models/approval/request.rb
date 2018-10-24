@@ -15,8 +15,25 @@ module Approval
     has_many :comments, class_name: :"Approval::Comment", inverse_of: :request, dependent: :destroy
     has_many :items,    class_name: :"Approval::Item",    inverse_of: :request, dependent: :destroy
 
+    belongs_to :approval_access_control, class_name: 'Approval::AccessControl', foreign_key: :request_type, primary_key: :request_type
+
     enum state: { pending: 0, cancelled: 1, approved: 2, rejected: 3, executed: 4 }
     enum display_status: { displayed: 1, hidden: 2 }
+    enum request_type: {
+        'Lock User' => 'lock_user',
+        'Unlock User' => 'unlock_user',
+        'Create User' => 'create_user',
+        'Update User Information' => 'update_user_information',
+        'Create Terminal' => 'create_terminal',
+        'Update Terminal' => 'update_terminal',
+        'Update Merchant' => 'update_merchant',
+        'Create Merchant' => 'create_merchant',
+        'Create Merchant User' => 'create_merchant_user',
+        'Create Parent Merchant' => 'create_parent_merchant',
+        'Update Parent Merchant' => 'update_parent_merchant',
+        'Create Parent Merchant User' => 'create_parent_merchant_user',
+        'Update Parent Merchant User' => 'update_parent_merchant_user',
+    }
 
     scope :recently, -> { order(id: :desc) }
 
