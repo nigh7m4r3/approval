@@ -6,10 +6,11 @@ module Approval
 
       attr_accessor :user, :reason, :records, :callback_method
 
-      def initialize(user:, reason:, records:, request_type: nil, callback_method: nil, options: {}, full_params: {})
+      def initialize(user:, reason:, records:, request_type: nil, access_scope: nil, callback_method: nil, options: {}, full_params: {})
         @user    = user
         @reason  = reason
         @records = records
+        @access_scope = access_scope
         @request_type = request_type
         @callback_method = callback_method
         @options = options
