@@ -36,7 +36,7 @@ module Approval
     }
 
     # Dictionary of available access scopes
-    ACCESS_SCOPE = ['customer', 'bank_office_user', 'merchant_user', 'merchant', 'terminal', 'customer_lock_unlock']
+    ACCESS_SCOPE = ['customer', 'bank_user', 'merchant_user', 'merchant', 'terminal', 'customer_lock_unlock']
 
     scope :recently, -> { order(id: :desc) }
 

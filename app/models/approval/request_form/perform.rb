@@ -5,6 +5,7 @@ module Approval
 
         def prepare
           request.request_type = @request_type
+          request.access_scope = @access_scope
           if @full_params[:parent_request_id].present?
             request.parent_request_id = @full_params[:parent_request_id].to_i
           end
