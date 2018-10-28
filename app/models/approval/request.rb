@@ -51,6 +51,12 @@ module Approval
 
     validate :ensure_state_was_pending
 
+    before_validation do
+      if parent_request
+        self.access_scope = parent_request.access_scope
+      end
+    end
+
     before_create do
       self.requested_at = Time.current
     end
