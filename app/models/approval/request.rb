@@ -26,6 +26,8 @@ module Approval
         'Update User Information' => 'update_user_information',
         'Create Terminal' => 'create_terminal',
         'Update Terminal' => 'update_terminal',
+        'Lock Terminal' => 'lock_terminal',
+        'Unlock Terminal' => 'unlock_terminal',
         'Update Merchant' => 'update_merchant',
         'Create Merchant' => 'create_merchant',
         'Create Merchant User' => 'create_merchant_user',
