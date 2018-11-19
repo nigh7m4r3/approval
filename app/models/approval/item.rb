@@ -19,6 +19,7 @@ module Approval
     validates :params,        presence: true, if: :update_event?
 
     validate :ensure_resource_be_valid, if: ->(item) { item.create_event? || item.update_event? }
+    validate :resource_custom_validation
 
     EVENTS.each do |event_name|
       define_method "#{event_name}_event?" do
@@ -56,6 +57,22 @@ module Approval
       if user
         user.user_information
       end
+    end
+
+    def resource_model
+      return @resource_model if @resource_model.present?
+
+      if resource_id.present?
+        @resource_model = resource_type.to_s.safe_constantize.find(resource_id)
+      else
+        @resource_model = resource_type.to_s.safe_constantize.new
+      end
+
+      changes = {}
+      params.map{|k, v| changes[k] = v.last}
+      @resource_model.assign_attributes(changes)
+
+      @resource_model
     end
 
     private
@@ -98,22 +115,6 @@ module Approval
         end
       end
 
-      def resource_model
-        return @resource_model if @resource_model.present?
-
-        if resource_id.present?
-          @resource_model = resource_type.to_s.safe_constantize.find(resource_id)
-        else
-          @resource_model = resource_type.to_s.safe_constantize.new
-        end
-
-        changes = {}
-        params.map{|k, v| changes[k] = v.last}
-        @resource_model.assign_attributes(changes)
-
-        @resource_model
-      end
-
       def ensure_resource_be_valid
         return unless resource_model
 
@@ -128,6 +129,22 @@ module Approval
           record.errors.full_messages.each do |message|
             request.errors.add(:base, message)
           end
+        end
+      end
+
+      def resource_custom_validation
+        return unless resource_model
+
+        callback_method = self.callback_method
+        validation_method = callback_method.gsub('callback', 'validation_callback')
+        if resource_model.respond_to?(validation_method)
+          validation_status, validation_errors = resource_model.public_send(validation_method, options)
+          unless validation_status
+            request.errors.add(:base, validation_errors)
+            return false
+          end
+        else
+          return  true
         end
       end
   end
