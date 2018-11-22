@@ -19,7 +19,7 @@ module Approval
     validates :params,        presence: true, if: :update_event?
 
     validate :ensure_resource_be_valid, if: ->(item) { item.create_event? || item.update_event? }
-    validate :resource_custom_validation
+    validate :resource_custom_validation, on: :create
 
     EVENTS.each do |event_name|
       define_method "#{event_name}_event?" do
