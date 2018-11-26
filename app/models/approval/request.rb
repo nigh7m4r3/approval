@@ -90,6 +90,12 @@ module Approval
       h
     end
 
+    def self.existing_record(request_type:, state: 'pending', record:)
+      joins(:items)
+        .where(request_type: request_type, state: state)
+        .where('approval_items.resource_type = ? AND approval_items.resource_id = ?', record.class.to_s, record.id)
+    end
+
     def all_related_comments
       if self.parent_request_id.present?
         parent = parent_request
