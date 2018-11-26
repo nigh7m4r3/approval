@@ -124,6 +124,16 @@ module Approval
       end
     end
 
+    def user_can_check?(current_user_id: User.current.id)
+      permitted_user_ids = Approval::AccessControl
+                               .find_by(request_type: Approval::Request::request_types[self.request_type])
+                               .approval_access_control_roles
+                               .where(access_type: Approval::AccessControlRole::access_types[:checker])
+                               .map(&:approval_access_control_id)
+
+      permitted_user_ids.include?(current_user_id)
+    end
+
     private
 
       def ensure_state_was_pending
