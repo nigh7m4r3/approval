@@ -13,12 +13,12 @@ module Approval
     has_many :child_requests, class_name: 'Approval::Request', foreign_key: :parent_request_id
 
     has_many :comments, class_name: :"Approval::Comment", inverse_of: :request, dependent: :destroy
-    has_many :items,    class_name: :"Approval::Item",    inverse_of: :request, dependent: :destroy
+    has_many :items, class_name: :"Approval::Item", inverse_of: :request, dependent: :destroy
 
     belongs_to :approval_access_control, class_name: 'Approval::AccessControl', foreign_key: :request_type, primary_key: :request_type
 
-    enum state: { pending: 0, cancelled: 1, approved: 2, rejected: 3, executed: 4 }
-    enum display_status: { displayed: 1, hidden: 2 }
+    enum state: {pending: 0, cancelled: 1, approved: 2, rejected: 3, executed: 4}
+    enum display_status: {displayed: 1, hidden: 2}
     enum request_type: {
         'Lock User' => 'lock_user',
         'Unlock User' => 'unlock_user',
@@ -40,18 +40,19 @@ module Approval
     # Dictionary of available access scopes
     ACCESS_SCOPE = ['customer', 'bank_user', 'merchant_user', 'merchant', 'terminal', 'customer_lock_unlock']
 
-    scope :recently, -> { order(id: :desc) }
+    scope :recently, -> {order(id: :desc)}
 
-    validates :state,        presence: true
+    validates :state, presence: true
     validates :respond_user, presence: true, unless: :pending?
-    validates :comments,     presence: true
-    validates :items,        presence: true
+    validates :comments, presence: true
+    validates :items, presence: true
     validates :access_scope, presence: true
 
     validates_associated :comments
     validates_associated :items
 
     validate :ensure_state_was_pending
+    validate :same_resource_is_not_pending, on: :create
 
     before_validation do
       if parent_request
@@ -80,7 +81,7 @@ module Approval
       h
     end
 
-    def as_json_for_checker(options={})
+    def as_json_for_checker(options = {})
       h = as_json(options)
 
       if items
@@ -92,8 +93,8 @@ module Approval
 
     def self.existing_record(request_type:, state: 'pending', record:)
       joins(:items)
-        .where(request_type: request_type, state: state)
-        .where('approval_items.resource_type = ? AND approval_items.resource_id = ?', record.class.to_s, record.id)
+          .where(request_type: request_type, state: state)
+          .where('approval_items.resource_type = ? AND approval_items.resource_id = ?', record.class.to_s, record.id)
     end
 
     def all_related_comments
@@ -136,12 +137,28 @@ module Approval
 
     private
 
-      def ensure_state_was_pending
-        return unless persisted?
+    def ensure_state_was_pending
+      return unless persisted?
 
-        if %w[pending approved].exclude?(state_was)
-          errors.add(:base, :already_performed)
-        end
+      if %w[pending approved].exclude?(state_was)
+        errors.add(:base, :already_performed)
       end
+    end
+
+    def same_resource_is_not_pending
+      item = self.items.first
+      resource_type = item.resource_type
+      resource_id = item.resource_id
+
+      return true unless resource_id
+
+      existing_requests = Request.joins(:items).where(approval_items: {resource_type: resource_type, resource_id: resource_id}).pending
+
+      return true unless existing_requests.count > 0
+
+      errors.add(:base, "A pending request (ID: #{existing_requests.map(&:id).join(', ')}) for this #{resource_type} already exist. Please Approve/Reject that first.")
+
+      false
+    end
   end
 end
