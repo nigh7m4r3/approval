@@ -15,7 +15,8 @@ module Approval
     has_many :comments, class_name: :"Approval::Comment", inverse_of: :request, dependent: :destroy
     has_many :items, class_name: :"Approval::Item", inverse_of: :request, dependent: :destroy
 
-    belongs_to :approval_access_control, class_name: 'Approval::AccessControl', foreign_key: :request_type, primary_key: :request_type
+    # belongs_to :approval_access_control, class_name: 'Approval::AccessControl', foreign_key: :request_type, primary_key: :request_type
+    belongs_to :approval_access_control, class_name: 'Approval::AccessControl', foreign_key: [:request_type, :access_scope], primary_key: [:request_type, :access_scope]
 
     enum state: {pending: 0, cancelled: 1, approved: 2, rejected: 3, executed: 4}
     enum display_status: {displayed: 1, hidden: 2}
@@ -101,10 +102,12 @@ module Approval
       if self.parent_request_id.present?
         parent = parent_request
         children = parent.child_requests
-        Approval::Comment.where(request_id: [self.id, parent.id, children.map(&:id)].flatten)
+        all_comments =  Approval::Comment.where(request_id: [self.id, parent.id, children.map(&:id)].flatten)
       else
-        comments
+        all_comments = comments
       end
+
+      all_comments.includes(request: [:respond_user, :request_user, :approval_access_control], user: :user_information)
     end
 
     def execute
@@ -123,6 +126,31 @@ module Approval
             .displayed
             .update_all(display_status: Approval::Request::display_statuses[:hidden])
       end
+    end
+
+    def access_control
+      AccessControl.includes(:approval_access_control_roles).find_by(request_type: Approval::Request::request_types[self.request_type], access_scope: self.access_scope)
+    end
+
+    def valid_makers
+      makers = access_control.approval_access_control_roles.maker
+      user_klass = 'User'.safe_constantize
+      if user_klass.present?
+        user_klass.joins(:roles).where(roles: {id: makers.map(&:role_id)})
+      end
+    end
+
+    def valid_checkers
+      checkers = access_control.approval_access_control_roles.checker
+      user_klass = 'User'.safe_constantize
+      if user_klass.present?
+        user_klass.joins(:roles).where(roles: {id: checkers.map(&:role_id)})
+      end
+    end
+
+    def action
+      return 'approved' if self.state == 'executed'
+      self.state
     end
 
     def user_can_check?(current_user_id: User.current.id)
