@@ -180,7 +180,7 @@ module Approval
 
       return true unless resource_id
 
-      existing_requests = Request.joins(:items).where(approval_items: {resource_type: resource_type, resource_id: resource_id}).pending
+      existing_requests = Request.joins(:items).where(request_type: Request::request_types[self.request_type], approval_items: {resource_type: resource_type, resource_id: resource_id}).pending
 
       return true unless existing_requests.count > 0
 
