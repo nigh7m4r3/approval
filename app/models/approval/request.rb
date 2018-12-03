@@ -36,6 +36,7 @@ module Approval
         'Update Parent Merchant' => 'update_parent_merchant',
         'Create Parent Merchant User' => 'create_parent_merchant_user',
         'Update Parent Merchant User' => 'update_parent_merchant_user',
+        'Customer Change Request' => 'customer_change_request'
     }
 
     # Dictionary of available access scopes
