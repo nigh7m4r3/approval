@@ -181,6 +181,9 @@ module Approval
 
       return true unless resource_id
 
+      if (['create_parent_merchant_user', 'create_merchant_user'].include?(Request::request_types[self.request_type])) && (['ParentMerchant', 'Merchant'].include?(resource_type))
+        return true
+      end
       existing_requests = Request.joins(:items).where(request_type: Request::request_types[self.request_type], approval_items: {resource_type: resource_type, resource_id: resource_id}).pending
 
       return true unless existing_requests.count > 0
