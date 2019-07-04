@@ -105,6 +105,8 @@ module Approval
         end
         # raise NotImplementedError unless resource_model.respond_to?(:perform)
 
+        options.merge!(maker_id: self.request.request_user_id)
+
         arg_count = resource_model.method(callback_method.to_sym).arity
         if arg_count != 0
           # resource_model.perform(params)
