@@ -115,6 +115,12 @@ module Approval
       all_comments.includes(request: [:respond_user, :request_user, :approval_access_control], user: :user_information)
     end
 
+    def get_access_scope
+      return self.access_scope unless self.parent_request.present?
+
+      self.parent_request.get_access_scope
+    end
+
     def execute
       self.state = :executed
       self.executed_at = Time.current
