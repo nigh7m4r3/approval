@@ -118,7 +118,7 @@ module Approval
     def get_access_scope
       return self.access_scope unless self.parent_request.present?
 
-      self.parent_request.get_access_scope
+      self.parent_request.access_scope
     end
 
     def execute
