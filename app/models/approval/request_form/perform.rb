@@ -13,7 +13,7 @@ module Approval
             ::Approval::Request.transaction do
               payload[:comment] = request.comments.new(user_id: user.id, content: reason)
               Array(records).each do |record|
-                request.items.new(
+                item = request.items.new(
                   event: "perform",
                   resource_type: record.class.to_s,
                   resource_id: record.id,
@@ -22,6 +22,7 @@ module Approval
                   options: @options,
                   full_params: @full_params
                 )
+                item.paper_trail_event = request.paper_trail_event if request.paper_trail_event.present?
               end
               yield(request)
             end
